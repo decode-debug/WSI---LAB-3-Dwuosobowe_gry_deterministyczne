@@ -1,10 +1,10 @@
-| Wariant    | Głębokość d | Partie | Wygrane [%] | Średni czas ruchu [ms] | Średnia liczba węzłów |
+| Wariant    | Glebokosc d | Partie | Wygrane [%] | Sredni czas ruchu [ms] | Srednia liczba wezlow |
 |:-----------|------------:|-------:|------------:|-----------------------:|----------------------:|
-| minimax    |           2 |    200 |        98.5 |                  0.010 |                 10.39 |
-| minimax    |           3 |    200 |        99.0 |                  0.025 |                 29.21 |
-| minimax    |           4 |    200 |        98.0 |                  0.061 |                 74.44 |
-| minimax    |           5 |    200 |       100.0 |                  0.130 |                179.44 |
-| alpha_beta |           2 |    200 |        98.5 |                  0.008 |                 10.39 |
-| alpha_beta |           3 |    200 |        99.0 |                  0.020 |                 26.26 |
-| alpha_beta |           4 |    200 |        98.0 |                  0.039 |                 52.31 |
-| alpha_beta |           5 |    200 |       100.0 |                  0.073 |                 99.93 |
+| minimax    |           2 |    200 |        98.5 |                  0.009 |                 10.39 |
+| minimax    |           3 |    200 |        99.0 |                  0.021 |                 29.21 |
+| minimax    |           4 |    200 |        98.0 |                  0.053 |                 74.44 |
+| minimax    |           5 |    200 |       100.0 |                  0.124 |                179.44 |
+| alpha_beta |           2 |    200 |        98.5 |                  0.009 |                 10.39 |
+| alpha_beta |           3 |    200 |        99.0 |                  0.019 |                 26.26 |
+| alpha_beta |           4 |    200 |        98.0 |                  0.040 |                 52.31 |
+| alpha_beta |           5 |    200 |       100.0 |                  0.074 |                 99.93 |
