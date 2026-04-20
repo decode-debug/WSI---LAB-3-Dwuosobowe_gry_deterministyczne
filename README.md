@@ -14,6 +14,11 @@ W eksperymentach przyjęto:
 - `200` partii dla każdej konfiguracji
 - przeciwnik algorytmu wykonuje ruchy losowe
 
+### Instalacja:
+```bash
+git clone https://github.com/decode-debug/WSI---wiczenie-2-Algorytmy-ewolucyjne.git
+```
+
 ## Uruchomienie
 
 ```powershell
