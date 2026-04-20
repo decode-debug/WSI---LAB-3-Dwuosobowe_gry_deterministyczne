@@ -131,30 +131,43 @@ class MinimaxAgent:
         if depth == 0 or state.tokens_left == 0:
             return self.rules.evaluate_state(state, maximizing_player)
 
+        # generuje wszystkie legalne ruchy z tego stanu
         moves = self.rules.legal_moves(state.tokens_left)
-        is_max_turn = state.current_player == maximizing_player
+        # określa, czy obecny gracz jest maksymalizowanym
+        if state.current_player == maximizing_player:
+            is_max_turn = True
+        else:
+            is_max_turn = False
 
+        # jeśli jest tura maksymalizującego gracza, szuka ruchu o najwyższej wartości,
         if is_max_turn:
             best_value = float("-inf")
             for move in moves:
                 child = self.rules.apply_move(state, move)
+                # rekurencyjnie ocenia stan potomny, zmniejszając głębokość o 1,
                 value = self._minimax_value(
                     child, depth - 1, maximizing_player, stats, alpha, beta
                 )
+                # aktualizuje najlepszą wartość, jeśli jest wyższa,
                 best_value = max(best_value, value)
+                # jeśli używa alpha-beta, aktualizuje alpha i sprawdza warunek cięcia,
                 if self.use_alpha_beta:
                     alpha = max(alpha, best_value)
                     if beta <= alpha:
                         break
             return best_value
 
+        # jeśli jest tura minimalizującego gracza, szuka ruchu o najniższej wartości,
         best_value = float("inf")
         for move in moves:
             child = self.rules.apply_move(state, move)
+            # rekurencyjnie ocenia stan potomny, zmniejszając głębokość o 1,
             value = self._minimax_value(
                 child, depth - 1, maximizing_player, stats, alpha, beta
             )
+            # aktualizuje najlepszą wartość, jeśli jest niższa,
             best_value = min(best_value, value)
+            # jeśli używa alpha-beta, aktualizuje beta i sprawdza warunek cięcia,
             if self.use_alpha_beta:
                 beta = min(beta, best_value)
                 if beta <= alpha:
@@ -162,14 +175,20 @@ class MinimaxAgent:
         return best_value
 
     def choose_move(self, state: GameState) -> MoveDecision:
+        """Chooses the best move using minimax search and returns a MoveDecision."""
         stats = SearchStats()
         start = time.perf_counter()
         moves = self.rules.legal_moves(state.tokens_left)
         maximizing_player = state.current_player
 
+        # zapisuje wszystkie ruchy wraz z ich ocenami
         scored_moves: list[tuple[int, float]] = []
+
+        # ocenia każdy ruch, wykonując minimax dla stanu po jego zastosowaniu,
         for move in moves:
+            # tworzy stan potomny, który powstaje po wykonaniu ruchu
             child = self.rules.apply_move(state, move)
+            # minimax zwraca wartość oceny dla tego ruchu
             value = self._minimax_value(
                 child,
                 self.depth - 1,
@@ -178,8 +197,11 @@ class MinimaxAgent:
                 float("-inf"),
                 float("inf"),
             )
+            # zapisuje ruch i jego ocenę do listy scored_moves
             scored_moves.append((move, value))
 
+        # wybiera ruchy o najwyższej ocenie,
+        # a jeśli jest ich kilka, losowo wybiera spośród nich,
         best_score = max(score for _, score in scored_moves)
         best_moves = [
             move for move, score in scored_moves if score == best_score
@@ -187,6 +209,8 @@ class MinimaxAgent:
         selected_move = self.rng.choice(best_moves)
         elapsed_ms = (time.perf_counter() - start) * 1000
 
+        # zwraca MoveDecision zawierający wybrany ruch, jego ocenę,
+        # liczbę odwiedzonych węzłów i czas wykonania
         return MoveDecision(
             move=selected_move,
             score=best_score,
@@ -203,7 +227,7 @@ class RandomAgent:
         self.rng = rng
 
     def choose_move(self, state: GameState) -> int:
-        # wybiera losowy ruch spośród legalnych
+        """Chooses a random legal move."""
         return self.rng.choice(self.rules.legal_moves(state.tokens_left))
 
 
