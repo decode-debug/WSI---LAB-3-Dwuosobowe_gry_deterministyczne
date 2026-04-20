@@ -9,8 +9,8 @@ from game_logic import ExperimentResult
 def format_results_table(results: list[ExperimentResult]) -> str:
     """Builds a markdown table with experiment metrics."""
     header = (
-        "| Wariant    | Glebokosc d | Partie | Wygrane [%] "
-        "| Sredni czas ruchu [ms] | Srednia liczba wezlow |"
+        "| Wariant    | Głębokość d | Partie | Wygrane [%] "
+        "| Średni czas ruchu [ms] | Średnia liczba węzłów |"
     )
     separator = (
         "|:-----------|------------:|-------:|------------:"

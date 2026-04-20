@@ -15,9 +15,7 @@ class ExperimentConfig:
     min_tokens: int = 8
     max_tokens: int = 20
     max_take: int = 3
-    depths: tuple[int, ...] = field(
-        default_factory=lambda: (2, 3, 4, 5)
-    )
+    depths: tuple[int, ...] = field(default_factory=lambda: (2, 3, 4, 5))
     games_per_depth: int = 200
     base_seed: int = 20260419
 
@@ -59,9 +57,11 @@ class NimRules:
         self.max_tokens = max_tokens
 
     def legal_moves(self, tokens_left: int) -> list[int]:
+        """Returns a list of legal moves (number of tokens to take)."""
         return list(range(1, min(tokens_left, self.max_take) + 1))
 
     def apply_move(self, state: GameState, move: int) -> GameState:
+        """Returns the new game state after applying the move."""
         return GameState(
             tokens_left=state.tokens_left - move,
             current_player=1 - state.current_player,
@@ -72,19 +72,28 @@ class NimRules:
         state: GameState,
         maximizing_player: int,
     ) -> float:
+        """Heuristic evaluation of the game state from the perspective of maximizing_player."""
+
+        # stan końcowy: jeśli nie ma tokenów,
+        # gracz, który właśnie wykonał ruch, wygrał
         if state.tokens_left == 0:
             return 1.0 if state.current_player == maximizing_player else -1.0
 
-        # Positions N == 1 (mod K+1) are losing for the player to move.
+        # strategia: gracz mający ruch jest w pozycji przegranej (niekorzystnej),
+        # jeśli liczba tokenów pozostających do wzięcia jest równa 1 modulo (max_take + 1)
         losing_for_player_to_move = (
             state.tokens_left % (self.max_take + 1) == 1
         )
         strategic_score = 0.75 if losing_for_player_to_move else -0.75
 
+        # jeśli obecny gracz jest maksymalizowanym, odwracamy ocenę strategiczną,
         if state.current_player == maximizing_player:
             strategic_score *= -1
 
+        # bonus za postęp w grze, który rośnie w miarę zmniejszania się liczby tokenów,
         progress_bonus = 0.25 * (1.0 - state.tokens_left / self.max_tokens)
+
+        # jeśli obecny gracz nie jest maksymalizowanym, odwracamy bonus postępu,
         if state.current_player != maximizing_player:
             progress_bonus *= -1
 
@@ -116,7 +125,9 @@ class MinimaxAgent:
         beta: float = float("inf"),
     ) -> float:
         stats.visited_nodes += 1
+        """Returns the minimax value of the state."""
 
+        # jeśli osiągnięto maksymalną głębokość lub stan końcowy, zwróć ocenę heurystyczną
         if depth == 0 or state.tokens_left == 0:
             return self.rules.evaluate_state(state, maximizing_player)
 
@@ -192,6 +203,7 @@ class RandomAgent:
         self.rng = rng
 
     def choose_move(self, state: GameState) -> int:
+        # wybiera losowy ruch spośród legalnych
         return self.rng.choice(self.rules.legal_moves(state.tokens_left))
 
 
@@ -209,11 +221,13 @@ class NimSimulator:
         self.agent_p2 = agent_p2  # player 1
 
     def play_game(self, initial_tokens: int) -> dict[str, float]:
+        """Plays a single game and returns statistics for the Minimax agent."""
         state = GameState(tokens_left=initial_tokens, current_player=0)
         total_nodes = 0
         total_time_ms = 0.0
         agent_moves = 0
 
+        # gra toczy się do momentu, aż nie będzie tokenów
         while True:
             if state.current_player == 0:
                 decision = self.agent_p1.choose_move(state)
@@ -242,7 +256,7 @@ class NimSimulator:
 
 
 def run_experiments(
-    cfg: ExperimentConfig | None = None
+    cfg: ExperimentConfig | None = None,
 ) -> list[ExperimentResult]:
     """Runs all simulations and returns aggregated metrics."""
 
@@ -251,43 +265,50 @@ def run_experiments(
 
     results: list[ExperimentResult] = []
 
-    shared_rng = random.Random(cfg.base_seed)
-    sampled_tokens = shared_rng.choices(
+    # generuje losowe liczby tokenów dla każdej gry,
+    # aby zapewnić różnorodność scenariuszy,
+    # ale z powtarzalnością dzięki bazowemu seedowi
+    sampled_tokens = random.Random(cfg.base_seed).choices(
         range(cfg.min_tokens, cfg.max_tokens + 1),
         k=cfg.games_per_depth,
     )
 
-    rules = NimRules(
-        max_take=cfg.max_take, max_tokens=cfg.max_tokens
-    )
+    # inicjalizuje zasady gry
+    rules = NimRules(max_take=cfg.max_take, max_tokens=cfg.max_tokens)
 
+    # iteruje przez wszystkie kombinacje
+    # wariantów ("minimax", "alpha_beta") i głębokościach (2, 3, 4, 5)
     for variant in cfg.variants:
         for depth in cfg.depths:
+            # tworzy osobne generatory liczb losowych dla agenta i przeciwnika,
             search_rng = random.Random(cfg.base_seed + depth)
             opponent_rng = random.Random(cfg.base_seed + 99)
 
+            # tworzy agenta Minimax i losowego przeciwnika, oraz symulator gry
             agent_p1 = MinimaxAgent(rules, depth, variant, search_rng)
             agent_p2 = RandomAgent(rules, opponent_rng)
             simulator = NimSimulator(rules, agent_p1, agent_p2)
 
+            # resetuje liczniki wyników dla kombinacji wariantu i głębokości
             total_wins = 0.0
             total_time_ms = 0.0
             total_nodes = 0.0
 
+            # rozgrywa określoną liczbę gier dla tej konfiguracji,
+            # używając wcześniej wygenerowanych losowych tokenów startowych,
             for tokens in sampled_tokens:
                 game_stats = simulator.play_game(initial_tokens=tokens)
                 total_wins += game_stats["won"]
                 total_time_ms += game_stats["avg_time_ms"]
                 total_nodes += game_stats["avg_nodes"]
 
+            # po rozegraniu wszystkich gier, oblicza średnie i zapisuje wyniki
             results.append(
                 ExperimentResult(
                     variant=variant,
                     depth=depth,
                     games=cfg.games_per_depth,
-                    win_rate_pct=(
-                        total_wins / cfg.games_per_depth
-                    ) * 100,
+                    win_rate_pct=(total_wins / cfg.games_per_depth) * 100,
                     avg_time_ms=total_time_ms / cfg.games_per_depth,
                     avg_nodes=total_nodes / cfg.games_per_depth,
                 )
