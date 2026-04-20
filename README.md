@@ -1,17 +1,17 @@
 # WSI - LAB 3 - Dwuosobowe gry deterministyczne
 
-Implementacja porownuje `minimax` oraz `minimax` z obcinaniem `alpha-beta` dla gry:
+Implementacja porównuje `minimax` oraz `minimax` z obcinaniem `alpha-beta` dla gry:
 
-- Na stole znajduje sie `N` zetonow.
-- Gracze na przemian zabieraja od `1` do `K` zetonow.
-- Przegrywa gracz, ktory zabierze ostatni zeton.
+- Na stole znajduje się `N` żetonów.
+- Gracze na przemian zabierają od `1` do `K` żetonów.
+- Przegrywa gracz, który zabierze ostatni żeton.
 
-W eksperymentach przyjeto:
+W eksperymentach przyjęto:
 
 - `K = 3`
-- `N` losowane jednostajnie z przedzialu `[8, 20]`
-- glebokosci przeszukiwania `d in {2, 3, 4, 5}`
-- `200` partii dla kazdej konfiguracji
+- `N` losowane jednostajnie z przedziału `[8, 20]`
+- głębokości przeszukiwania `d in {2, 3, 4, 5}`
+- `200` partii dla każdej konfiguracji
 - przeciwnik algorytmu wykonuje ruchy losowe
 
 ## Uruchomienie
@@ -22,22 +22,22 @@ python main.py
 
 Skrypt:
 
-- uruchamia serie eksperymentow,
+- uruchamia serię eksperymentów,
 - zapisuje wyniki do `results.csv`,
-- generuje tabele w `results.md`,
+- generuje tabelę w `results.md`,
 - wypisuje podsumowanie w terminalu.
 
 ## Heurystyka
 
-Dla stanow niekoncowych przy ograniczonej glebokosci zastosowano funkcje oceny oparta o znana wlasnosc tej gry: pozycje `N = 1 mod (K + 1)` sa niekorzystne dla gracza bedacego na ruchu. Dodatkowo dodany jest niewielki skladnik zalezny od liczby pozostalych zetonow, aby preferowac stany blizsze rozstrzygnieciu.
+Dla stanów niekońcowych przy ograniczonej głębokości zastosowano funkcję oceny opartą o znaną własność tej gry: pozycje `N = 1 mod (K + 1)` są niekorzystne dla gracza będącego na ruchu. Dodatkowo dodany jest niewielki składnik zależny od liczby pozostałych żetonów, aby preferować stany bliższe rozstrzygnięciu.
 
-W przypadku kilku ruchow o tej samej ocenie algorytm losuje jeden z najlepszych ruchow.
+W przypadku kilku ruchów o tej samej ocenie algorytm losuje jeden z najlepszych ruchów.
 
-## Interpretacja wynikow
+## Interpretacja wyników
 
 Wyniki z uruchomienia referencyjnego (`seed = 20260419`):
 
-| Wariant | Glebokosc d | Partie | Wygrane [%] | Sredni czas ruchu [ms] | Srednia liczba wezlow |
+| Wariant | Głębokość d | Partie | Wygrane [%] | Średni czas ruchu [ms] | Średnia liczba węzłów |
 |---|---:|---:|---:|---:|---:|
 | minimax | 2 | 200 | 99.0 | 0.008 | 10.30 |
 | minimax | 3 | 200 | 99.5 | 0.019 | 28.67 |
@@ -48,9 +48,9 @@ Wyniki z uruchomienia referencyjnego (`seed = 20260419`):
 | alpha_beta | 4 | 200 | 99.0 | 0.036 | 51.70 |
 | alpha_beta | 5 | 200 | 99.0 | 0.069 | 95.85 |
 
-Krotka interpretacja:
+Krótka interpretacja:
 
-- Skutecznosc obu wariantow jest praktycznie identyczna, co jest zgodne z teoria: obcinanie `alpha-beta` nie zmienia jakosci decyzji, tylko ogranicza liczbe analizowanych stanow.
-- Dla malej glebokosci `d = 2` zysk jest pomijalny, bo drzewo gry jest jeszcze bardzo male.
-- Im wieksza glebokosc, tym bardziej widoczna przewaga `alpha-beta`: dla `d = 5` srednia liczba odwiedzonych wezlow spadla z `169.20` do `95.85`, a sredni czas ruchu z `0.111 ms` do `0.069 ms`.
-- Otrzymane odsetki wygranych sa bardzo wysokie, poniewaz algorytm gra przeciwko przeciwnikowi losowemu, a sama gra ma prosta strukture strategiczna.
+- Skuteczność obu wariantów jest praktycznie identyczna, co jest zgodne z teorią: obcinanie `alpha-beta` nie zmienia jakości decyzji, tylko ogranicza liczbę analizowanych stanów.
+- Dla małej głębokości `d = 2` zysk jest pomijalny, bo drzewo gry jest jeszcze bardzo małe.
+- Im większa głębokość, tym bardziej widoczna przewaga `alpha-beta`: dla `d = 5` średnia liczba odwiedzonych węzłów spadła z `169.20` do `95.85`, a średni czas ruchu z `0.111 ms` do `0.069 ms`.
+- Otrzymane odsetki wygranych są bardzo wysokie, ponieważ algorytm gra przeciwko przeciwnikowi losowemu, a sama gra ma prostą strukturę strategiczną.
