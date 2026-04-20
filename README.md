@@ -16,7 +16,7 @@ W eksperymentach przyjęto:
 
 ### Instalacja:
 ```bash
-git clone https://github.com/decode-debug/WSI---wiczenie-2-Algorytmy-ewolucyjne.git
+git clone https://github.com/decode-debug/WSI---LAB-3-Dwuosobowe_gry_deterministyczne
 ```
 
 ## Uruchomienie
